@@ -1,6 +1,15 @@
 import React from 'react';
 import Display from './Display'
 
+/*
+  TODO: 
+  -Handle Leading & Trailing Operators in Calculation
+  -Handle Negative Operator
+  -Handle Digit Overflow & Expression Wrapping
+  -Add keypress handling for numpad
+  -Make it mobile responsive
+*/
+
 class Calculator extends React.Component {
     constructor(props) {
         super(props);
@@ -87,7 +96,7 @@ class Calculator extends React.Component {
             newState.currentValue = operator;
 
             if (state.lastAction === 'operator') {
-                newState.expression = state.expression.replace(/.$/, operator);
+                newState.expression = state.expression.replace(/[.]$/, operator);
             } else {
                 if (state.lastAction === 'equals') {
                     newState.expression = state.currentValue + operator;

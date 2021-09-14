@@ -10,7 +10,7 @@ const App = () => {
         <div>
             <Calculator />
             <footer>
-                <p>Design and Developed by <a href="https://www.eduard-mekler.com">Eduard Mekler</a></p>
+                <p>Designed and Developed by <a href="https://www.eduard-mekler.com">Eduard Mekler</a></p>
             </footer>
         </div>
     )
