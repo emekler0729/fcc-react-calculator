@@ -80,3 +80,11 @@ $id-list: zero, one, two, three, four, five, six, seven, eight, nine, equals, ad
         background: rgba(white, 0.35);
     }
 }
+
+footer {
+    a,
+    a:visited {
+        text-decoration: none;
+        color:rgb(185, 208, 252);
+    }
+}

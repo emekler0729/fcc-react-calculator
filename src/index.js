@@ -9,6 +9,9 @@ const App = () => {
     return (
         <div>
             <Calculator />
+            <footer>
+                <p>Design and Developed by <a href="https://www.eduard-mekler.com">Eduard Mekler</a></p>
+            </footer>
         </div>
     )
 }
