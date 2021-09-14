@@ -6,6 +6,7 @@ import Display from './Display'
   -Handle Leading & Trailing Operators in Calculation
   -Handle Negative Operator
   -Handle Digit Overflow & Expression Wrapping
+  -Handle rounding
   -Add keypress handling for numpad
   -Make it mobile responsive
 */
@@ -96,7 +97,13 @@ class Calculator extends React.Component {
             newState.currentValue = operator;
 
             if (state.lastAction === 'operator') {
-                newState.expression = state.expression.replace(/[.]$/, operator);
+                if (operator !== '-') {
+                    newState.expression = state.expression.replace(/[/*+]*[-/*+]$/, operator);
+                } else {
+                    if (!state.expression.endsWith('-')) {
+                        newState.expression = state.expression + operator;
+                    }
+                }
             } else {
                 if (state.lastAction === 'equals') {
                     newState.expression = state.currentValue + operator;
