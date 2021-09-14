@@ -3,12 +3,11 @@ import Display from './Display'
 
 /*
   TODO: 
-  -Handle Leading & Trailing Operators in Calculation
-  -Handle Negative Operator
-  -Handle Digit Overflow & Expression Wrapping
-  -Handle rounding
-  -Add keypress handling for numpad
-  -Make it mobile responsive
+    -Handle Leading & Trailing Operators in Calculation
+    -Add keypress handling for numpad
+    -Make it mobile responsive
+    -Handle rounding
+    -Handle Digit Overflow & Expression Wrapping
 */
 
 class Calculator extends React.Component {
@@ -73,10 +72,12 @@ class Calculator extends React.Component {
 
     calculate() {
         this.setState(state => {
+            const EXPRESSION = state.expression.replace('--', '- -');
             if (state.lastAction !== 'equals' && state.lastAction !== null) {
                 let result;
                 try {
-                    result = new Function(`'use strict'; return ${state.expression};`)();
+                    result = new Function(`'use strict'; return ${EXPRESSION};`)();
+
                 } catch {
                     return this.clearState;
                 }
@@ -91,8 +92,20 @@ class Calculator extends React.Component {
         })
     }
 
+    /*
+        Last Action was operator:
+            If the operator is not minus then replace previous operators (including combined negative operator)
+            Else it is negative unary operator. Concatenate it if it isn't already present.
+        Else
+            If the last action was equals bring over the result as the new expression and set operator
+            Else (number or null) add the operator
+
+        The missing case? The very first operator was set to negative then it should not treat it like an operator was set.
+    */
     handleOperator(operator) {
         this.setState(state => {
+            if (state.lastAction === null && operator !== '-') return state;
+
             let newState = {};
             newState.currentValue = operator;
 
@@ -100,7 +113,7 @@ class Calculator extends React.Component {
                 if (operator !== '-') {
                     newState.expression = state.expression.replace(/[/*+]*[-/*+]$/, operator);
                 } else {
-                    if (!state.expression.endsWith('-')) {
+                    if (!state.expression.endsWith('--')) {
                         newState.expression = state.expression + operator;
                     }
                 }
