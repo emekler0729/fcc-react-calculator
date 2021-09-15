@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/fcc-react-calculator/static/css/main.887bcf1c.chunk.css",
-    "main.js": "/fcc-react-calculator/static/js/main.0b3e90ce.chunk.js",
-    "main.js.map": "/fcc-react-calculator/static/js/main.0b3e90ce.chunk.js.map",
+    "main.js": "/fcc-react-calculator/static/js/main.72ddfbe6.chunk.js",
+    "main.js.map": "/fcc-react-calculator/static/js/main.72ddfbe6.chunk.js.map",
     "runtime-main.js": "/fcc-react-calculator/static/js/runtime-main.2071c5b3.js",
     "runtime-main.js.map": "/fcc-react-calculator/static/js/runtime-main.2071c5b3.js.map",
     "static/js/2.311bf668.chunk.js": "/fcc-react-calculator/static/js/2.311bf668.chunk.js",
@@ -15,6 +15,6 @@
     "static/js/runtime-main.2071c5b3.js",
     "static/js/2.311bf668.chunk.js",
     "static/css/main.887bcf1c.chunk.css",
-    "static/js/main.0b3e90ce.chunk.js"
+    "static/js/main.72ddfbe6.chunk.js"
   ]
 }
