@@ -6,6 +6,7 @@ import Display from './Display'
     -Make it mobile responsive
     -Handle rounding
     -Handle Digit Overflow & Expression Wrapping
+    -Prettify buttons
 */
 
 // Create State Object shorthand notation
@@ -120,7 +121,7 @@ class Calculator extends React.Component {
         this.setState(ERROR_STATE);
         setTimeout(() => {
             this.clear();
-        }, 1000);
+        }, 600);
     }
 
     calculate() {
@@ -129,7 +130,7 @@ class Calculator extends React.Component {
                 let result;
                 try {
                     // eslint-disable-next-line
-                    result = Math.round(10000000000 * eval(state.expression.replace('--', '- -'))) / 10000000000;
+                    result = Math.round(10000000000 * eval(state.expression.replace(/--/g, '- -'))) / 10000000000;
 
                 } catch {
                     this.error();
