@@ -103,30 +103,39 @@ class Calculator extends React.Component {
         The missing case? The very first operator was set to negative then it should not treat it like an operator was set.
     */
     handleOperator(operator) {
-        this.setState(state => {
-            if (state.lastAction === null && operator !== '-') return state;
-
-            let newState = {};
-            newState.currentValue = operator;
-
-            if (state.lastAction === 'operator') {
-                if (operator !== '-') {
-                    newState.expression = state.expression.replace(/[/*+]*[-/*+]$/, operator);
-                } else {
-                    if (!state.expression.endsWith('--')) {
-                        newState.expression = state.expression + operator;
-                    }
-                }
-            } else {
-                if (state.lastAction === 'equals') {
-                    newState.expression = state.currentValue + operator;
-                } else {
-                    newState.expression = state.expression + operator;
-                }
+        function createState(expression, lastAction) {
+            return {
+                currentValue: operator,
+                expression,
+                lastAction
             }
+        }
 
-            newState.lastAction = 'operator';
-            return newState;
+        this.setState(state => {
+            switch (state.lastAction) {
+                case null:
+                    if (operator === '-') {
+                        return createState(operator, 'negative');
+                    }
+                    break;
+                case 'negative':
+                    if (operator !== '-') {
+                        if (state.expression.startsWith('-')) {
+                            return createState(`0${operator}`, 'operator');
+                        } else {
+                            return createState(`${state.expression.replace(/[-/*+]-*$/, operator)}`, 'operator');
+                        }
+                    }
+                    break;
+                case 'operator':
+                    if (operator === '-') {
+                        return createState(`${state.expression + operator}`, 'negative');
+                    } else {
+                        return createState(`${state.expression.replace(/[-/*+]-*$/, operator)}`, 'operator')
+                    }
+                default:
+                    return createState(`${state.expression + operator}`, 'operator');
+            }
         })
     }
 
