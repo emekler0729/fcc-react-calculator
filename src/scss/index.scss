@@ -68,6 +68,13 @@ $id-list: zero, one, two, three, four, five, six, seven, eight, nine, equals, ad
     background-color: $color-background-black;
     color: white;
     font-size: 2rem;
+    cursor: pointer; 
+
+    transition: border 250ms;
+
+    &:hover {
+        border: 1px solid white;
+    }
 
     &#equals {
         background-color: #0ebeffa8;
@@ -90,5 +97,11 @@ footer {
     a:visited {
         text-decoration: none;
         color:rgb(185, 208, 252);
+    }
+}
+
+@media (max-width: 400px) {
+    .button {
+        font-size: 1.2rem;
     }
 }

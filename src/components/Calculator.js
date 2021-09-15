@@ -8,45 +8,67 @@ import Display from './Display'
     -Handle Digit Overflow & Expression Wrapping
 */
 
+// Create State Object shorthand notation
+function createState(currentValue, expression, lastAction) {
+    return {
+        currentValue,
+        expression,
+        lastAction
+    }
+}
+
+// Enumerations for actions, operators, and decimal
+const ACTION = {
+    CLEAR: null,
+    ERROR: 'error',
+    OPERATOR: 'operator',
+    NEGATIVE: 'negative',
+    CALCULATION: 'equals',
+    NUMBER: 'number'
+};
+
+const OPERATOR = {
+    SUBTRACT: '-',
+    ADD: '+',
+    MULTIPLY: '*',
+    DIVIDE: '/',
+    CALCULATE: '=',
+    CLEAR: 'C'
+};
+
+const DECIMAL = '.';
+
+// Clear & error state constants
+const CLEAR_STATE = createState('0', '', ACTION.CLEAR);
+const ERROR_STATE = createState('ERROR', '', ACTION.ERROR);
+
+const BUTTON_DEFINITIONS = [
+    [
+        'zero',
+        'one',
+        'two',
+        'three',
+        'four',
+        'five',
+        'six',
+        'seven',
+        'eight',
+        'nine'
+    ],
+    { symbol: OPERATOR.CALCULATE, id: 'equals' },
+    { symbol: OPERATOR.ADD, id: 'add' },
+    { symbol: OPERATOR.SUBTRACT, id: 'subtract' },
+    { symbol: OPERATOR.MULTIPLY, id: 'multiply' },
+    { symbol: OPERATOR.DIVIDE, id: 'divide' },
+    { symbol: OPERATOR.CLEAR, id: 'clear' },
+    { symbol: DECIMAL, id: 'decimal' },
+]
+
 class Calculator extends React.Component {
     constructor(props) {
         super(props);
 
-        this.clearState = {
-            currentValue: '0',
-            expression: '',
-            lastAction: null
-        }
-
-        this.errorState = {
-            currentValue: 'ERROR',
-            expression: '',
-            lastAction: null
-        }
-
-        this.buttonDefinitions = [
-            [
-                'zero',
-                'one',
-                'two',
-                'three',
-                'four',
-                'five',
-                'six',
-                'seven',
-                'eight',
-                'nine'
-            ],
-            { symbol: '=', id: 'equals' },
-            { symbol: '+', id: 'add' },
-            { symbol: '-', id: 'subtract' },
-            { symbol: '*', id: 'multiply' },
-            { symbol: '/', id: 'divide' },
-            { symbol: '.', id: 'decimal' },
-            { symbol: 'C', id: 'clear' },
-        ]
-
-        this.state = this.clearState;
+        this.state = CLEAR_STATE;
 
         this.handleClick = this.handleClick.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -62,16 +84,16 @@ class Calculator extends React.Component {
 
     handleClick(event) {
         switch (event.target.value) {
-            case 'C':
+            case OPERATOR.CLEAR:
                 this.clear();
                 break;
-            case '=':
+            case OPERATOR.CALCULATE:
                 this.calculate();
                 break;
-            case '+':
-            case '-':
-            case '*':
-            case '/':
+            case OPERATOR.ADD:
+            case OPERATOR.SUBTRACT:
+            case OPERATOR.MULTIPLY:
+            case OPERATOR.DIVIDE:
                 this.handleOperator(event.target.value);
                 break;
             default:
@@ -80,22 +102,22 @@ class Calculator extends React.Component {
     }
 
     handleKeyPress(event) {
+        // F keys,  any key that is not a calculator value, or Control / Caps Lock
         const INVALID_KEYS = /^F\d{1,2}|[^-1234567890./*+=C]+|^C.+/
-        const RAW_KEY = event.key;
 
-        const CLEAN_KEY = RAW_KEY.replace('Enter', '=')
-            .replace('Escape', 'C')
+        const CLEAN_KEY = event.key.replace('Enter', OPERATOR.CALCULATE)
+            .replace('Escape', OPERATOR.CLEAR)
             .replace(INVALID_KEYS, '');
 
         CLEAN_KEY && this.handleClick({ target: { value: CLEAN_KEY } });
     }
 
     clear() {
-        this.setState(this.clearState);
+        this.setState(CLEAR_STATE);
     }
 
     error() {
-        this.setState(this.errorState);
+        this.setState(ERROR_STATE);
         setTimeout(() => {
             this.clear();
         }, 1000);
@@ -103,19 +125,16 @@ class Calculator extends React.Component {
 
     calculate() {
         this.setState(state => {
-            if (state.lastAction !== 'equals' && state.lastAction !== null) {
+            if (state.lastAction !== ACTION.CALCULATION && state.lastAction !== ACTION.CLEAR) {
                 let result;
                 try {
-                    result = new Function(`'use strict'; return ${state.expression.replace('--', '- -')};`)();
+                    // eslint-disable-next-line
+                    result = Math.round(10000000000 * eval(state.expression.replace('--', '- -'))) / 10000000000;
 
                 } catch {
                     this.error();
                 }
-                return {
-                    currentValue: result,
-                    expression: `${state.expression}=${result}`,
-                    lastAction: 'equals'
-                };
+                return createState(result, `${state.expression}=${result}`, ACTION.CALCULATION);
             } else {
                 return state;
             }
@@ -123,69 +142,56 @@ class Calculator extends React.Component {
     }
 
     handleOperator(operator) {
-        function createState(expression, lastAction) {
-            return {
-                currentValue: operator,
-                expression,
-                lastAction
-            }
-        }
+        const makeState = createState.bind(null, operator);
 
         this.setState(state => {
             switch (state.lastAction) {
-                case null:
-                    if (operator === '-') {
-                        return createState(operator, 'negative');
+                case ACTION.CLEAR:
+                    if (operator === OPERATOR.SUBTRACT) {
+                        return makeState(operator, ACTION.NEGATIVE);
                     }
                     break;
-                case 'negative':
-                    if (operator !== '-') {
-                        if (state.expression.startsWith('-')) {
-                            return createState(`0${operator}`, 'operator');
+                case ACTION.NEGATIVE:
+                    if (operator !== OPERATOR.SUBTRACT) {
+                        if (state.expression.startsWith(OPERATOR.SUBTRACT)) {
+                            return makeState(`0${operator}`, ACTION.OPERATOR);
                         } else {
-                            return createState(`${state.expression.replace(/[-/*+]-*$/, operator)}`, 'operator');
+                            return makeState(`${state.expression.replace(/[-/*+]-*$/, operator)}`, ACTION.OPERATOR);
                         }
                     }
                     break;
-                case 'operator':
-                    if (operator === '-') {
-                        return createState(`${state.expression + operator}`, 'negative');
+                case ACTION.OPERATOR:
+                    if (operator === OPERATOR.SUBTRACT) {
+                        return makeState(`${state.expression + operator}`, ACTION.NEGATIVE);
                     } else {
-                        return createState(`${state.expression.replace(/[-/*+]-*$/, operator)}`, 'operator')
+                        return makeState(`${state.expression.replace(/[-/*+]-*$/, operator)}`, ACTION.OPERATOR)
                     }
-                case 'equals':
-                    return createState(`${state.currentValue + operator}`, 'operator');
+                case ACTION.CALCULATION:
+                    return makeState(`${state.currentValue + operator}`, ACTION.OPERATOR);
                 default:
-                    return createState(`${state.expression + operator}`, 'operator');
+                    return makeState(`${state.expression + operator}`, ACTION.OPERATOR);
             }
         })
     }
 
     handleNumber(number) {
         this.setState(state => {
-            let newState = {};
-
-            if (state.currentValue === '0' || state.lastAction === 'equals') {
-                number = number === '.' ? '0.' : number;
-                newState = {
-                    currentValue: number,
-                    expression: number
-                };
+            if (state.currentValue === CLEAR_STATE.currentValue || state.lastAction === ACTION.CALCULATION) {
+                number = number === DECIMAL ? '0.' : number;
+                return createState(number, number, ACTION.NUMBER);
             } else {
-                number = number === '.' && state.currentValue.includes('.') ? '' : number;
-                newState = {
-                    currentValue: state.currentValue.replace(/^[-/+*]/, '') + number,
-                    expression: state.expression + number
-                };
+                number = number === DECIMAL && state.currentValue.includes(DECIMAL) ? '' : number;
+                return createState(
+                    state.currentValue.replace(/^[-/+*]/, '') + number,
+                    state.expression + number,
+                    ACTION.NUMBER
+                );
             }
-
-            newState.lastAction = 'number';
-            return newState;
         });
     }
 
     render() {
-        const buttonComponents = makeButtons(this.buttonDefinitions, this.handleClick);
+        const buttonComponents = makeButtons(BUTTON_DEFINITIONS, this.handleClick);
 
         return (
             <div className="calculator">
@@ -205,7 +211,7 @@ function makeButtons(definitions, handleClick) {
             value={symbol}
             onClick={handleClick}
         >
-            <span id="front">{symbol}</span>
+            {symbol}
         </button>;
     }
     const buttons = definitions.reduce((components, definition) => {
