@@ -8,14 +8,16 @@ $color-background-black: rgba(black, 0.4);
 body {
     display: grid;
     place-items: center;
+
     height: 100vh;
+
     background: linear-gradient(to bottom right, #1b3d66, #9f74a1);
-    color: white;
+    color: white; 
+    
     text-align: center;
 }
 
 .calculator {
-    background: url(https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80) top/cover no-repeat;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: 2fr repeat(5, 1fr);
@@ -30,10 +32,12 @@ body {
 
     padding: 6px;
     border-radius: 6px;
-    border: 2px #193150 solid;
-
     height: 400px;
     width: 300px;
+    
+    background: url(https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80) top/cover no-repeat;    
+   
+    border: 2px #193150 solid;
 }
 
 $id-list: zero, one, two, three, four, five, six, seven, eight, nine, equals, add, subtract, multiply, divide, decimal, clear;

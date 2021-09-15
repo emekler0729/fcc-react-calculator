@@ -3,7 +3,6 @@ import Display from './Display'
 
 /*
   TODO: 
-    -Add keypress handling for numpad
     -Make it mobile responsive
     -Handle rounding
     -Handle Digit Overflow & Expression Wrapping
@@ -154,6 +153,8 @@ class Calculator extends React.Component {
                     } else {
                         return createState(`${state.expression.replace(/[-/*+]-*$/, operator)}`, 'operator')
                     }
+                case 'equals':
+                    return createState(`${state.currentValue + operator}`, 'operator');
                 default:
                     return createState(`${state.expression + operator}`, 'operator');
             }
@@ -184,7 +185,7 @@ class Calculator extends React.Component {
     }
 
     render() {
-        const buttonComponents = makeButtons(this.buttonDefinitions, this.handleClick, this.handleKeyPress);
+        const buttonComponents = makeButtons(this.buttonDefinitions, this.handleClick);
 
         return (
             <div className="calculator">
@@ -195,7 +196,7 @@ class Calculator extends React.Component {
     }
 }
 
-function makeButtons(definitions, handleClick, handleKeyPress) {
+function makeButtons(definitions, handleClick) {
     function makeButtonJSX(id, symbol) {
         return <button
             className="button"
@@ -204,7 +205,7 @@ function makeButtons(definitions, handleClick, handleKeyPress) {
             value={symbol}
             onClick={handleClick}
         >
-            {symbol}
+            <span id="front">{symbol}</span>
         </button>;
     }
     const buttons = definitions.reduce((components, definition) => {
