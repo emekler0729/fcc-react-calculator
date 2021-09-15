@@ -1,7 +1,21 @@
 $color-background-black: rgba(black, 0.4);
+$color-background-white: rgba(white, 0.35);
+$color-border: #193150;
+$color-calculate-button: #0ebeffa8;
+$color-clear-button: #fb2727bf;
+$color-link: rgb(185, 208, 252);
+$color-gradient-left: #1b3d66;
+$color-gradient-right: #9f74a1;
+
+@function scale($ideal-value) {
+    @return clamp(0.85px * $ideal-value, $ideal-value / 375 * 100vw, $ideal-value * 1.2px);
+}
 
 * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
+
     font-family: monospace;
 }
 
@@ -11,9 +25,13 @@ body {
 
     height: 100vh;
 
-    background: linear-gradient(to bottom right, #1b3d66, #9f74a1);
+    background: linear-gradient(
+        to bottom right, 
+        $color-gradient-left, 
+        $color-gradient-right
+    );
+
     color: white; 
-    
     text-align: center;
 }
 
@@ -31,14 +49,14 @@ body {
         "one two three equals"
         "zero zero decimal equals";
 
+    // Ideal WxH 364px by 488px @ 375px width
+    height: scale(488);
+    width: scale(364);
     padding: 6px;
+    border: 2px $color-border solid;
     border-radius: 6px;
-    height: clamp(400px, 98vh, 500px);
-    width: clamp(300px, 98vw, 375px);
-    
-    background: url(https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80) top/cover no-repeat;    
-   
-    border: 2px #193150 solid;
+        
+    background: url(https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80) top/cover no-repeat;     
 }
 
 $id-list: zero, one, two, three, four, five, six, seven, eight, nine, equals, add, subtract, multiply, divide, decimal, clear;
@@ -50,22 +68,25 @@ $id-list: zero, one, two, three, four, five, six, seven, eight, nine, equals, ad
 }
 
 .display {
-    text-align: right;
     grid-area: display;
     
-    background: $color-background-black;
+    // max-height: 124px;
+    padding: 6px;
     border-radius: 6px;
-    padding: 10px;
 
-    max-height: 124px;
+    background: $color-background-black;
+    
+    text-align: right;
 
     #currentValue {
-        font-size: (3.5 * 16 / 812 * 100vh);
-        margin-bottom: 0.25rem;
+        margin-bottom: scale(4);
+
+        font-size: scale(50);
     }
 
     #expression {
-        font-size: (16 / 812 * 100vh);
+        font-size: scale(16);
+
         overflow-wrap: break-word;
     }
 }
@@ -73,37 +94,41 @@ $id-list: zero, one, two, three, four, five, six, seven, eight, nine, equals, ad
 .button {
     border-radius: 6px;
     border: 1px solid transparent;
+    
     background-color: $color-background-black;
+    
+    font-size: scale(30);
     color: white;
-    font-size: calc(32 / 809 * 100vh);
+    
+    transition: border 250ms;
+    
     cursor: pointer; 
 
-    transition: border 250ms;
 
     &:hover {
         border: 1px solid white;
     }
 
     &#equals {
-        background-color: #0ebeffa8;
+        background-color: $color-calculate-button;
     }
 
     &#clear {
-        background-color: #fb2727bf;
+        background-color: $color-clear-button;
     }
 
     &#add,
     &#subtract,
     &#multiply,
     &#divide {
-        background: rgba(white, 0.35);
+        background: $color-background-white;
     }
 }
 
 footer {
     a,
     a:visited {
+        color: $color-link;
         text-decoration: none;
-        color:rgb(185, 208, 252);
     }
 }
