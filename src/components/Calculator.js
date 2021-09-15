@@ -3,7 +3,6 @@ import Display from './Display'
 
 /*
   TODO: 
-    -Handle Leading & Trailing Operators in Calculation
     -Add keypress handling for numpad
     -Make it mobile responsive
     -Handle rounding
@@ -15,8 +14,14 @@ class Calculator extends React.Component {
         super(props);
 
         this.clearState = {
-            expression: '',
             currentValue: '0',
+            expression: '',
+            lastAction: null
+        }
+
+        this.errorState = {
+            currentValue: 'ERROR',
+            expression: '',
             lastAction: null
         }
 
@@ -70,16 +75,22 @@ class Calculator extends React.Component {
         this.setState(this.clearState);
     }
 
+    error() {
+        this.setState(this.errorState);
+        setTimeout(() => {
+            this.clear();
+        }, 1000);
+    }
+
     calculate() {
         this.setState(state => {
-            const EXPRESSION = state.expression.replace('--', '- -');
             if (state.lastAction !== 'equals' && state.lastAction !== null) {
                 let result;
                 try {
-                    result = new Function(`'use strict'; return ${EXPRESSION};`)();
+                    result = new Function(`'use strict'; return ${state.expression.replace('--', '- -')};`)();
 
                 } catch {
-                    return this.clearState;
+                    this.error();
                 }
                 return {
                     currentValue: result,
@@ -92,16 +103,6 @@ class Calculator extends React.Component {
         })
     }
 
-    /*
-        Last Action was operator:
-            If the operator is not minus then replace previous operators (including combined negative operator)
-            Else it is negative unary operator. Concatenate it if it isn't already present.
-        Else
-            If the last action was equals bring over the result as the new expression and set operator
-            Else (number or null) add the operator
-
-        The missing case? The very first operator was set to negative then it should not treat it like an operator was set.
-    */
     handleOperator(operator) {
         function createState(expression, lastAction) {
             return {
