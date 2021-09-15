@@ -50,25 +50,45 @@ class Calculator extends React.Component {
         this.state = this.clearState;
 
         this.handleClick = this.handleClick.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+    }
+
+    componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyPress);
+    }
+
+    componentWillUnmount() {
+        document.addEventListener('keydown', this.handleKeyPress);
     }
 
     handleClick(event) {
-        switch (event.target.id) {
-            case 'clear':
+        switch (event.target.value) {
+            case 'C':
                 this.clear();
                 break;
-            case 'equals':
+            case '=':
                 this.calculate();
                 break;
-            case 'add':
-            case 'subtract':
-            case 'multiply':
-            case 'divide':
+            case '+':
+            case '-':
+            case '*':
+            case '/':
                 this.handleOperator(event.target.value);
                 break;
             default:
                 this.handleNumber(event.target.value);
         }
+    }
+
+    handleKeyPress(event) {
+        const INVALID_KEYS = /^F\d{1,2}|[^-1234567890./*+=C]+|^C.+/
+        const RAW_KEY = event.key;
+
+        const CLEAN_KEY = RAW_KEY.replace('Enter', '=')
+            .replace('Escape', 'C')
+            .replace(INVALID_KEYS, '');
+
+        CLEAN_KEY && this.handleClick({ target: { value: CLEAN_KEY } });
     }
 
     clear() {
@@ -164,7 +184,7 @@ class Calculator extends React.Component {
     }
 
     render() {
-        const buttonComponents = makeButtons(this.buttonDefinitions, this.handleClick);
+        const buttonComponents = makeButtons(this.buttonDefinitions, this.handleClick, this.handleKeyPress);
 
         return (
             <div className="calculator">
@@ -175,9 +195,17 @@ class Calculator extends React.Component {
     }
 }
 
-function makeButtons(definitions, handleClick) {
+function makeButtons(definitions, handleClick, handleKeyPress) {
     function makeButtonJSX(id, symbol) {
-        return <button className="button" key={id} id={id} value={symbol} onClick={handleClick}>{symbol}</button>;
+        return <button
+            className="button"
+            key={id}
+            id={id}
+            value={symbol}
+            onClick={handleClick}
+        >
+            {symbol}
+        </button>;
     }
     const buttons = definitions.reduce((components, definition) => {
         if (Array.isArray(definition)) {
