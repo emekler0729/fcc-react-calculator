@@ -3,7 +3,6 @@ import Display from './Display'
 
 /*
   TODO: 
-    -Handles Expression trimming
     -Prettify buttons
 */
 
@@ -94,7 +93,7 @@ class Calculator extends React.Component {
     }
 
     componentWillUnmount() {
-        document.removeEventListener('keydown');
+        document.removeEventListener('keydown', this.handleKeyPress);
     }
 
     handleClick(event) {
