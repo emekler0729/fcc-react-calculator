@@ -3,7 +3,6 @@ import Display from './Display'
 
 /*
   TODO: 
-    -Make it mobile responsive
     -Handle rounding
     -Handle Digit Overflow & Expression Wrapping
     -Prettify buttons
@@ -18,7 +17,7 @@ function createState(currentValue, expression, lastAction) {
     }
 }
 
-// Enumerations for actions, operators, and decimal
+// Enumerations for actions, operators, decimal, and max length
 const ACTION = {
     CLEAR: null,
     ERROR: 'error',
@@ -38,6 +37,16 @@ const OPERATOR = {
 };
 
 const DECIMAL = '.';
+
+/*
+    This is very manual currently and may break if the font or element sizing is modified.
+    On mobile, the max length of display current value is 11 characters & 68 characters for the expression.
+    On desktop, the max length of display current value is 12 characters & 76 characters for the expression.
+*/
+const MAX_LENGTH = {
+    CURRENT_VALUE: 11,
+    EXPRESSION: 68
+}
 
 // Clear & error state constants
 const CLEAR_STATE = createState('0', '', ACTION.CLEAR);
@@ -125,12 +134,21 @@ class Calculator extends React.Component {
     }
 
     calculate() {
+        function round(result) {
+            const LEADING_DIGITS = result.toString().indexOf(DECIMAL);
+            if (LEADING_DIGITS === -1) return result;
+
+            const SIGNIFICANT_DIGITS = MAX_LENGTH.CURRENT_VALUE - (LEADING_DIGITS + 1);
+            const ROUND_FACTOR = Number.parseInt('1'.padEnd(SIGNIFICANT_DIGITS + 1, '0'));
+
+            return Math.round(result * ROUND_FACTOR) / ROUND_FACTOR;
+        }
         this.setState(state => {
             if (state.lastAction !== ACTION.CALCULATION && state.lastAction !== ACTION.CLEAR) {
                 let result;
                 try {
                     // eslint-disable-next-line
-                    result = Math.round(10000000000 * eval(state.expression.replace(/--/g, '- -'))) / 10000000000;
+                    result = round(eval(state.expression.replace(/--/g, '- -')));
 
                 } catch {
                     this.error();

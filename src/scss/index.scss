@@ -8,7 +8,7 @@ $color-gradient-left: #1b3d66;
 $color-gradient-right: #9f74a1;
 
 @function scale($ideal-value) {
-    @return clamp(0.85px * $ideal-value, $ideal-value / 375 * 100vw, $ideal-value * 1.2px);
+    @return clamp(320px / 375 * $ideal-value, $ideal-value / 375 * 100vw, $ideal-value * 430px / 375);
 }
 
 * {
@@ -126,6 +126,9 @@ $id-list: zero, one, two, three, four, five, six, seven, eight, nine, equals, ad
 }
 
 footer {
+    margin-top: scale(30);
+    font-size: scale(12);
+    
     a,
     a:visited {
         color: $color-link;
