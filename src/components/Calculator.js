@@ -3,18 +3,22 @@ import Display from './Display'
 
 /*
   TODO: 
-    -Handle Digit Overflow & Expression Wrapping
-    overflwo can occur when numbers
-    results
+    -Handles Expression trimming
     -Prettify buttons
 */
 
 // Create State Object shorthand notation
 function createState(currentValue, expression, lastAction) {
+    let expressionDisplay = expression;
+
+    if (expressionDisplay.toString().length > MAX_LENGTH.EXPRESSION) {
+        expressionDisplay = expressionDisplay.slice(-MAX_LENGTH.EXPRESSION + 3).padStart(MAX_LENGTH.EXPRESSION, '.');
+    }
     return {
         currentValue,
         expression,
-        lastAction
+        lastAction,
+        expressionDisplay
     }
 }
 
@@ -41,7 +45,7 @@ const OPERATOR = {
 const DECIMAL = '.';
 
 /*
-    This is very manual currently and may break if the font or element sizing is modified.
+    This is very crude currently and may break if the font or element sizing is modified.
     On mobile, the max length of display current value is 11 characters & 68 characters for the expression.
     On desktop, the max length of display current value is 12 characters & 76 characters for the expression.
 */
@@ -90,7 +94,7 @@ class Calculator extends React.Component {
     }
 
     componentWillUnmount() {
-        document.addEventListener('keydown', this.handleKeyPress);
+        document.removeEventListener('keydown');
     }
 
     handleClick(event) {
@@ -120,6 +124,8 @@ class Calculator extends React.Component {
             .replace('Escape', OPERATOR.CLEAR)
             .replace(INVALID_KEYS, '');
 
+        console.log(CLEAN_KEY);
+
         CLEAN_KEY && this.handleClick({ target: { value: CLEAN_KEY } });
     }
 
@@ -129,7 +135,7 @@ class Calculator extends React.Component {
 
     error(message, state) {
         const HANDLER = this.handleClick;
-        this.handleClick = null;
+        this.handleClick = () => null;
 
         this.setState(createState('ERROR', message, ACTION.ERROR));
         setTimeout(() => {
@@ -221,7 +227,7 @@ class Calculator extends React.Component {
 
         return (
             <div className="calculator">
-                <Display currentValue={this.state.currentValue} expression={this.state.expression}></Display>
+                <Display currentValue={this.state.currentValue} expression={this.state.expressionDisplay}></Display>
                 {buttonComponents}
             </div>
         )
