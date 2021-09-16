@@ -3,8 +3,9 @@ import Display from './Display'
 
 /*
   TODO: 
-    -Handle rounding
     -Handle Digit Overflow & Expression Wrapping
+    overflwo can occur when numbers
+    results
     -Prettify buttons
 */
 
@@ -24,7 +25,8 @@ const ACTION = {
     OPERATOR: 'operator',
     NEGATIVE: 'negative',
     CALCULATION: 'equals',
-    NUMBER: 'number'
+    NUMBER: 'number',
+    OVERFLOW: 'overflow'
 };
 
 const OPERATOR = {
@@ -50,7 +52,6 @@ const MAX_LENGTH = {
 
 // Clear & error state constants
 const CLEAR_STATE = createState('0', '', ACTION.CLEAR);
-const ERROR_STATE = createState('ERROR', '', ACTION.ERROR);
 
 const BUTTON_DEFINITIONS = [
     [
@@ -126,11 +127,15 @@ class Calculator extends React.Component {
         this.setState(CLEAR_STATE);
     }
 
-    error() {
-        this.setState(ERROR_STATE);
+    error(message, state) {
+        const HANDLER = this.handleClick;
+        this.handleClick = null;
+
+        this.setState(createState('ERROR', message, ACTION.ERROR));
         setTimeout(() => {
-            this.clear();
-        }, 600);
+            this.handleClick = HANDLER;
+            state ? this.setState(state) : this.clear();
+        }, 1000);
     }
 
     calculate() {
@@ -149,9 +154,9 @@ class Calculator extends React.Component {
                 try {
                     // eslint-disable-next-line
                     result = round(eval(state.expression.replace(/--/g, '- -')));
-
+                    if (result.toString().length > MAX_LENGTH.CURRENT_VALUE) this.error('OVERFLOW');
                 } catch {
-                    this.error();
+                    this.error('INVALID EXPRESSION');
                 }
                 return createState(result, `${state.expression}=${result}`, ACTION.CALCULATION);
             } else {
@@ -200,8 +205,10 @@ class Calculator extends React.Component {
                 return createState(number, number, ACTION.NUMBER);
             } else {
                 number = number === DECIMAL && state.currentValue.includes(DECIMAL) ? '' : number;
+                const NEXT_VALUE = state.currentValue.replace(/^[-/+*]/, '') + number;
+                if (NEXT_VALUE.toString().length > MAX_LENGTH.CURRENT_VALUE) this.error('MAX DIGITS', state);
                 return createState(
-                    state.currentValue.replace(/^[-/+*]/, '') + number,
+                    NEXT_VALUE,
                     state.expression + number,
                     ACTION.NUMBER
                 );
